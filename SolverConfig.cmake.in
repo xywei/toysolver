@@ -1,0 +1,28 @@
+
+#  $Id$
+
+
+
+# This file provides a macro that authors can use to
+# set up a directory with source files that will then be
+# compiled into a run-time loadable plugin.
+
+
+FIND_PACKAGE(deal.II 8.0 REQUIRED HINTS @DEAL_II_PATH@)
+SET(SOLVER_INCLUDE_DIRS "@CMAKE_SOURCE_DIR@/include")
+SET(SOLVER_USE_PETSC "@SOLVER_USE_PETSC@")
+
+MACRO(SOLVER_SETUP_PLUGIN _target)
+  MESSAGE("Setting up plugin <${_target}>")
+  DEAL_II_SETUP_TARGET(${_target})
+  SET_PROPERTY(TARGET ${_target} APPEND PROPERTY
+    INCLUDE_DIRECTORIES "${SOLVER_INCLUDE_DIRS}"
+  )
+
+  IF(SOLVER_USE_PETSC)
+    MESSAGE("  (with PETSC=ON)")
+    SET_PROPERTY(TARGET ${_target}
+      APPEND PROPERTY COMPILE_DEFINITIONS SOLVER_USE_PETSC="1")
+  ENDIF()
+
+ENDMACRO()

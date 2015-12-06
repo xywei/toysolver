@@ -1,12 +1,12 @@
 /*
- * ParamHandler.h
+ * ParamHandler.hpp
  *
  *  Created on: Dec 5, 2015
  *      Author: xywei
  */
 
-#ifndef SOURCE_PARAMHANDLER_H_
-#define SOURCE_PARAMHANDLER_H_
+#ifndef PARAMHANDLER_HPP_
+#define PARAMHANDLER_HPP_
 
 #include <iostream>
 #include <string>
@@ -21,12 +21,12 @@ public:
 	virtual ~ParamHandler();
 
 	int read_file (const std::string &);
-	void display_param () const;
+	void display () const;
 	template <typename T>
-	boost::optional<T> look_for (const std::string &) const;
+	T get (const std::string &) const;
 
 private:
 	boost::property_tree::ptree param_tree;
 };
 
-#endif /* SOURCE_PARAMHANDLER_H_ */
+#endif /* PARAMHANDLER_HPP_ */
