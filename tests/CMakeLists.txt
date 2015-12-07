@@ -7,9 +7,9 @@ MACRO(SET_IF_EMPTY _variable _value)
   ENDIF()
 ENDMACRO()
 
-# A function that extracts from a file (presumably a .prm file)
+# A function that extracts from a file (presumably a .ini file)
 # the number of MPI processes this test is to be invoked as.
-# This is encoded in .prm files through (commented) lines of the form
+# This is encoded in .ini files through (commented) lines of the form
 #    'NUM_OF_MPI_PROC = 4'
 # The result is returned in a variable _mpi_count in the
 # caller's scope.
@@ -29,8 +29,8 @@ FUNCTION(get_mpi_count _filename)
   endif()
 ENDFUNCTION()
 
-# extract from the prm if the test should be run with trilinos or
-# petsc. This is encoded in the .prm in form of line
+# extract from the ini if the test should be run with trilinos or
+# petsc. This is encoded in the .ini in form of line
 # 'LINEAR_ALGEBRA = PETSC'
 # 'LINEAR_ALGEBRA = PETSC,TRILINOS'
 # under anysection.
@@ -105,14 +105,14 @@ IF("${TEST_DIFF}" STREQUAL "")
   ENDIF()
 ENDIF()
 
-FILE(GLOB _tests *.prm)
+FILE(GLOB _tests *.ini)
 
 SET(_n_tests "0")
 LIST(SORT _tests)
 FOREACH(_test ${_tests})
   GET_FILENAME_COMPONENT(_test ${_test} NAME_WE)
 
-  CHECK_LINEAR_ALGEBRA(${CMAKE_CURRENT_SOURCE_DIR}/${_test}.prm)
+  CHECK_LINEAR_ALGEBRA(${CMAKE_CURRENT_SOURCE_DIR}/${_test}.ini)
 
   IF("${_use_test}" STREQUAL "1")
 
@@ -123,8 +123,8 @@ FOREACH(_test ${_tests})
       SET_PROPERTY(SOURCE ${_test}.cpp
                    APPEND PROPERTY COMPILE_DEFINITIONS SOLVER_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
       IF (SOLVER_USE_PETSC)
-        SET_PROPERTY(SOURCE ${_test}.cPP
-	             APPEND PROPERTY COMPILE_DEFINITIONS SOLVER_USE_PETSC="1")
+        SET_PROPERTY(SOURCE ${_test}.cpp
+                     APPEND PROPERTY COMPILE_DEFINITIONS SOLVER_USE_PETSC="1")
       ENDIF()
       DEAL_II_SETUP_TARGET(${_test})
       SET(_testlib 'set Additional shared libraries = ./lib${_test}.so')
@@ -146,30 +146,30 @@ FOREACH(_test ${_tests})
     # mesh, input files, etc, in the tests/ directory without having
     # to know where exactly they are run.
     FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/output-${_test})
-    ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm
-      COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/${_test}.prm
-		 ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm
+    ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini
+      COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/${_test}.ini
+		 ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini
       COMMAND echo 'set Output directory = output-${_test}'
-		 >> ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm
+		 >> ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini
       COMMAND echo '${_testlib}'
-		 >> ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm
+		 >> ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini
       COMMAND ${PERL_EXECUTABLE} -pi
 		 -e 's!\\@SOURCE_DIR\\@!${CMAKE_CURRENT_SOURCE_DIR}!g;'
-		 ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm
-      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_test}.prm
+		 ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini
+      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_test}.ini
       )
 
-    # then generate a rule that runs aspect and normalizes the output
-    # files. Before running aspect, delete prior content of the directory to
+    # then generate a rule that runs the solver and normalizes the output
+    # files. Before running it, delete prior content of the directory to
     # make sure no dead files are left there (this is one way to trip up the
-    # 'terminate_user_request' test of Aspect which terminates the program when
+    # 'terminate_user_request' test which terminates the program when
     # a certain file appears). we have to take care of not deleting those
     # files that have been placed there on purpose, however, which are all
     # of the .cmp.notime files.
     #
     # the actual run command is a bit complicated because we have to figure out
     # whether we want the test to run in parallel using MPI or not
-    GET_MPI_COUNT(${CMAKE_CURRENT_SOURCE_DIR}/${_test}.prm)
+    GET_MPI_COUNT(${CMAKE_CURRENT_SOURCE_DIR}/${_test}.ini)
 
     # detect the optional script <testname>.sh that a test can use to process
     # output (currently screen-output only).
@@ -188,13 +188,13 @@ FOREACH(_test ${_tests})
 	      rm -f \$i \;
 	    fi \;
 	  done
-	COMMAND aspect ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm
+	COMMAND toysolver ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini
 		> ${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/screen-output.tmp
 	COMMAND ${_replacement_script} screen-output <${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/screen-output.tmp >${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/screen-output
 	COMMAND ${PERL_EXECUTABLE} -pi
 		  ${CMAKE_CURRENT_SOURCE_DIR}/normalize.pl
 		  ${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/*
-	DEPENDS aspect ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm ${_testdepends}
+	DEPENDS toysolver ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini ${_testdepends}
 	)
     ELSE()
       ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/screen-output
@@ -204,13 +204,13 @@ FOREACH(_test ${_tests})
 	      rm -f \$i \;
 	    fi \;
 	  done
-	COMMAND mpirun -np ${_mpi_count} ${CMAKE_CURRENT_BINARY_DIR}/../aspect ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm
+	COMMAND mpirun -np ${_mpi_count} ${CMAKE_CURRENT_BINARY_DIR}/../toysolver ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini
 		> ${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/screen-output.tmp
 	COMMAND ${_replacement_script} screen-output <${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/screen-output.tmp >${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/screen-output
 	COMMAND ${PERL_EXECUTABLE} -pi
 		  ${CMAKE_CURRENT_SOURCE_DIR}/normalize.pl
 		  ${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/*
-	DEPENDS aspect ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.prm ${_testdepends}
+	DEPENDS toysolver ${CMAKE_CURRENT_BINARY_DIR}/${_test}.x.ini ${_testdepends}
 	)
     ENDIF()
 
@@ -232,7 +232,7 @@ FOREACH(_test ${_tests})
     FOREACH(_output ${_outputs})
       GET_FILENAME_COMPONENT(_output ${_output} NAME)
 
-      get_filename_component(ASPECT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PATH)
+      get_filename_component(toysolver_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PATH)
 
       # create the output.notime targets for each of the output files,
       # and also create a similar file for all of the input files (this
@@ -260,7 +260,7 @@ FOREACH(_test ${_tests})
 	  cat ${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/${_output}
 	  | egrep -v '^\\|.*\\|'
 	  | egrep -v '^--'
-	  | sed 's\#${ASPECT_BASE_DIR}\#ASPECT_DIR\#g'
+	  | sed 's\#${toysolver_BASE_DIR}\#toysolver_DIR\#g'
 	  > ${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/${_output}.notime
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/screen-output
 		${CMAKE_CURRENT_BINARY_DIR}/output-${_test}/${_output}.cmp.notime
