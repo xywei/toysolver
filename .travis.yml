@@ -2,13 +2,14 @@ language: C++
 sudo: required
 
 before_install:
-  - sudo apt-get install build-essential curl m4 info install-info libbz2-dev libexpat-dev libncurses-dev zlib1g-dev
-  - ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/linuxbrew/go/install)"
   - brew install dealii
   - wget http://apt.biicode.com/install.sh
   - chmod +x install.sh 
   - ./install.sh
   - bii setup:cpp
+  - wget -nc https://github.com/dealii/dealii/releases/download/v8.3.0/dealii-8.3.0.tar.gz
+  - tar -xvf dealii-8.3.0.tar.gz
+  - mkdir dealii && cd dealii && cmake --build ../dealii-8.3.0
   
 script:
   - bii init -L
