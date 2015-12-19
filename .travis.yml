@@ -2,17 +2,14 @@ language: C++
 sudo: required
 
 before_install:
-  - wget http://apt.biicode.com/install.sh
-  - chmod +x install.sh 
-  - ./install.sh
-  - bii setup:cpp
-  - wget -nc https://github.com/dealii/dealii/releases/download/v8.3.0/dealii-8.3.0.tar.gz 
-  - if cd dealii-8.3.0; then echo dealii_folder_exists!; else tar -xf dealii-8.3.0.tar.gz; fi
-  - mkdir -p dealii
-  - cd dealii
-  - cmake ../dealii-8.3.0
-  - make && sudo make install
+  - if cd dealii-installed; then echo Dealii_installation_cached!; else ./install-dealii.sh; fi
+  
+cache:
+  directories:
+    - dealii-installed
   
 script:
-  - bii init -L
-  - bii cpp:build
+  - export DEAL_II_DIR=$PWD/dealii-installed
+  - cmake $PWD/toysolver
+  - make
+  
