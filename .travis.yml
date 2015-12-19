@@ -6,9 +6,14 @@ before_install:
   - chmod +x install.sh 
   - ./install.sh
   - bii setup:cpp
-  - git clone https://github.com/koecher/candi
-  - cd candi && ./candi.sh
+  - wget -nc https://github.com/dealii/dealii/releases/download/v8.3.0/dealii-8.3.0.tar.gz 
+  - if cd dealii-8.3.0; then echo dealii_folder_exists!; else tar -xf dealii-8.3.0.tar.gz; fi
+  - mkdir -p dealii
+  - cd dealii
+  - cmake -DCMAKE_INSTALL_PREFIX=`pwd` ../dealii-8.3.0
+  - make && make install
   
 script:
+  - export DEALI_II_DIR=`pwd`/dealii
   - bii init -L
   - bii cpp:build
