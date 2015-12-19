@@ -2,6 +2,7 @@ language: C++
 sudo: required
 
 before_install:
+  - chmod +x install-dealii.sh
   - if cd dealii-installed; then echo Dealii_installation_cached!; else ./install-dealii.sh; fi
   
 cache:
