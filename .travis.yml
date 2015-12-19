@@ -1,4 +1,9 @@
 language: C++
 
+before_install:
+  - wget http://apt.biicode.com/install.sh
+  - chmod +x install.sh 
+  - ./install.sh
+
 script:
   - bii cpp:build
