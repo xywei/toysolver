@@ -7,4 +7,5 @@ before_install:
   - ./install.sh
 
 script:
+  - bii init -L
   - bii cpp:build
