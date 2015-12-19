@@ -5,5 +5,5 @@ tar -xf dealii-8.3.0.tar.gz
 mkdir -p dealii-build
 cd dealii-build
 cmake --DCMAKE_INSTALL_PREFIX=../dealii-installed ../dealii-8.3.0
-make
+make -j4
 make install
