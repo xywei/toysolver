@@ -10,6 +10,8 @@ before_install:
   - if cd dealii-8.3.0; then echo Target_exists!; else tar -xvf dealii-8.3.0.tar.gz; fi
   - mkdir -p dealii && cd dealii && cmake --build ../dealii-8.3.0
   - export DEAL_II_DIR=`pwd`
+  - git clone https://github.com/koecher/candi
+  - cd candi && ./candi.sh
   
 script:
   - bii init -L
