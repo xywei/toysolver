@@ -7,10 +7,8 @@ before_install:
   - timeout 2500s ./install-dealii.sh
   - timeout 2500s ./install-dealii.sh
   
-cache:
-  directories:
-    - dealii-installed
-  
+cache: ccache
+
 script:
   - export DEAL_II_DIR=$PWD/dealii-installed
   - cmake $PWD/toysolver
