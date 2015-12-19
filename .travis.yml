@@ -1,1 +1,4 @@
 language: C++
+
+script:
+  - bii cpp:build
