@@ -2,7 +2,6 @@ language: C++
 sudo: required
 
 before_install:
-  - brew install dealii
   - wget http://apt.biicode.com/install.sh
   - chmod +x install.sh 
   - ./install.sh
