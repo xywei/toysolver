@@ -7,7 +7,7 @@ before_install:
   - ./install.sh
   - bii setup:cpp
   - wget -nc https://github.com/dealii/dealii/releases/download/v8.3.0/dealii-8.3.0.tar.gz
-  - if cd dealii-8.3.0; then echo Target_exists!; else tar -xvf dealii-8.3.0.tar.gz
+  - if cd dealii-8.3.0; then echo Target_exists!; else tar -xvf dealii-8.3.0.tar.gz; fi
   - mkdir -p dealii && cd dealii && cmake --build ../dealii-8.3.0
   - export DEAL_II_DIR=`pwd`
   
