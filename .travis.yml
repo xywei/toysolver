@@ -1,15 +1,14 @@
 language: C++
 sudo: required
+  
+cache: ccache
 
-before_install:
+script:
   - chmod +x install-dealii.sh
   - timeout 2500s ./install-dealii.sh
   - timeout 2500s ./install-dealii.sh
   - timeout 2500s ./install-dealii.sh
   
-cache: ccache
-
-script:
   - export DEAL_II_DIR=$PWD/dealii-installed
   - cmake $PWD/toysolver
   - make
