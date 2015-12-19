@@ -10,10 +10,9 @@ before_install:
   - if cd dealii-8.3.0; then echo dealii_folder_exists!; else tar -xf dealii-8.3.0.tar.gz; fi
   - mkdir -p dealii
   - cd dealii
-  - cmake -DCMAKE_INSTALL_PREFIX=`pwd` ../dealii-8.3.0
-  - make && make install
+  - cmake ../dealii-8.3.0
+  - make && sudo make install
   
 script:
-  - export DEALI_II_DIR=`pwd`/dealii
   - bii init -L
   - bii cpp:build
