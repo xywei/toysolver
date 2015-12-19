@@ -2,10 +2,14 @@ language: C++
 sudo: required
 
 before_install:
+  - sudo apt-get install build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev
+  - ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/linuxbrew/go/install)"
+  - brew install dealii
   - wget http://apt.biicode.com/install.sh
   - chmod +x install.sh 
   - ./install.sh
-
+  - bii setup:cpp
+  
 script:
   - bii init -L
   - bii cpp:build
