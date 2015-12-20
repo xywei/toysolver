@@ -9,7 +9,10 @@ script:
   - timeout -s 0 2500s ./install-dealii.sh
   - timeout -s 0 2500s ./install-dealii.sh
   
-  - export DEAL_II_DIR=$PWD/dealii-installed
-  - cmake $PWD/toysolver
+  - export DEAL_II_DIR=$HOME/dealii-installed
+  - cd $HOME
+  - mkdir -p build
+  - cd build
+  - cmake $HOME/toysolver
   - make
   
