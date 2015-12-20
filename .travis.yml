@@ -4,15 +4,22 @@ sudo: required
 cache: ccache
 
 script:
-  - chmod +x install-dealii.sh
-  - timeout -s 0 2500s ./install-dealii.sh
-  - timeout -s 0 2500s ./install-dealii.sh
-  - timeout -s 0 2500s ./install-dealii.sh
-  
-  - export DEAL_II_DIR=$HOME/dealii-installed
   - cd $HOME
+  - wget -nc https://github.com/dealii/dealii/releases/download/v8.3.0/dealii-8.3.0.tar.gz
+  - tar -xf dealii-8.3.0.tar.gz
+  - cd dealii-8.3.0
   - mkdir -p build
   - cd build
+  - cmake --DCMAKE_INSTALL_PREFIX=$HOME/dealii-installed ..
+  - make compat_files
+  - make library
+  - make mesh_converter
+  - make package
+  - make test
+  - export DEAL_II_DIR=$HOME/dealii-installed
+  - cd $HOME
+  - mkdir -p toysolver-build
+  - cd toysolver-build
   - cmake $HOME/toysolver
   - make
   
